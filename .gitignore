@@ -1,0 +1,7 @@
+# Секреты и ключи
+.env
+*.json
+secrets/
+
+# Системные файлы Colab/Jupyter
+.ipynb_checkpoints/
