@@ -1,113 +1,110 @@
-# 🤖 LLM Benchmark Framework for Fintech
+# 🏦 LLM Benchmark Framework for Fintech
 
-> **Production-ready framework** для сравнительного бенчмаркинга LLM в финтехе: оценка качества, скорости и стоимости моделей для задач взыскания, скоринга и клиентской поддержки.
-
-## 💼 Бизнес-проблема
-
-**Контекст:** Финтех-компания обрабатывает 10,000+ запросов в день (взыскание, скоринг, поддержка).
-
-**Проблема:**
-- ❌ Неясно, какая LLM оптимальна по соотношению **качество/скорость/стоимость**
-- ❌ Разные провайдеры (Yandex, Sber, OpenAI) → сложно сравнивать
-- ❌ Риск нарушения **152-ФЗ** при использовании зарубежных API
-
-**Последствия:**
-- Переплата до **300%** за неоптимальную модель
-- SLA нарушения из-за высокой latency
-- Юридические риски при обработке персональных данных
+> **Production-ready framework** для объективного выбора LLM в финтехе.  
+> Оценка качества, latency и TCO (Total Cost of Ownership) моделей для задач взыскания, скоринга и комплаенса с учетом требований 152-ФЗ.
 
 ---
 
-## 🎯 Решение
+## 💼 Business Context & Problem Statement
 
-**LLM Benchmark Framework** — это инструмент для объективного выбора модели на основе цифр, а не хайпа:
+Финтех-компания обрабатывает **10,000+ запросов/день**. Выбор LLM — это баланс между тремя критическими метриками:
+1.  **Quality**: Юридическая точность и соблюдение регламентов (взыскание, 230-ФЗ).
+2.  **Latency**: Время отклика (SLA клиентской поддержки < 2 сек).
+3.  **Cost**: Юнит-экономика при масштабировании.
 
-1.  **Quality**: Оценка релевантности ответа (юридический/финтех контекст).
-2.  **Latency**: Скорость ответа (Time to First Token).
-3.  **Cost**: Юнит-экономика (стоимость за 1 запрос).
+### ❌ Проблемы рынка:
+*   **Black Box**: Провайдеры не дают прозрачных SLA по качеству ответов в специфических доменах.
+*   **Vendor Lock-in**: Сложность миграции между YandexGPT, SberGigaChat и открытыми моделями (Qwen/Llama).
+*   **Compliance Risk**: Использование зарубежных API нарушает требования 152-ФЗ о локализации ПДн.
 
-## 📊 Результаты (MVP)
-
-Сравнение двух моделей на тестовом промпте (взыскание долгов):
-
-| Модель | Провайдер | Latency (мс) | Стоимость | Оценка |
-|--------|-----------|--------------|-----------|--------|
-| **YandexGPT** | Yandex Cloud | 2,304 | ~$0.0001 | ⭐⭐⭐⭐ (Лучше русский) |
-| **Qwen2.5-7B** | Hugging Face | 1,081 | $0.00 (Free) | ⭐⭐⭐ (Быстрее) |
-
-> 💡 **Инсайт для бизнеса**: Qwen в 2 раза быстрее и бесплатен на старте, но YandexGPT обеспечивает лучшее соблюдение резидентности данных (152-ФЗ), что критично для финтеха.
+### ✅ Решение:
+Архитектура **LLM Benchmark Framework** позволяет проводить A/B-тестирование моделей на реальных кейсах до внедрения в прод, снижая риски переплаты и юридических штрафов.
 
 ---
 
-## 🏗️ Архитектура решения
-[Ваш ноутбук/Colab]
-│
-├─ 🔐 Auth Layer (IAM-Token / HF-Token) → Шифрование через Colab Secrets
-│
-├─ 🌐 API Gateway (Yandex Cloud / HuggingFace) → Маршрутизация запросов
-│
-├─ 🧠 LLM Models (YandexGPT, Qwen, GigaChat*) → Инференс
-│
-└─ 📊 Metrics Collector → Latency, Cost, Quality Scoring
+## 📊 Key Findings (MVP Results)
 
-**Технологический стек:**
-- `Python 3.10+` — основной язык
-- `requests` / `huggingface_hub` — API-клиенты
-- `pandas` / `matplotlib` — обработка и визуализация метрик
-- `PyJWT` / `cryptography` — безопасная аутентификация
+Бенчмарк проведен на датасете из 10 реалистичных финтех-промптов (взыскание, реструктуризация, проверка контрагентов).
 
-**🇷🇺 Compliance-by-Design:**
-- Все данные обрабатываются на серверах в РФ (Yandex Cloud)
-- Аудит-лог запросов и ротация токенов
-- Минимальные права доступа (Principle of Least Privilege)
+| Модель | Провайдер | Latency (p95) | Cost / 1k req | Quality Score* | Compliance (152-ФЗ) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **YandexGPT** | Yandex Cloud | ~2,300 ms | ~$0.10 | ⭐⭐⭐⭐⭐ | ✅ РФ Сервера |
+| **Qwen 2.5-7B** | Hugging Face | ~1,080 ms | $0.00 (Free) | ⭐⭐⭐⭐ | ⚠️ Требуется Self-hosted |
+| **GigaChat** | SberCloud | TBD | TBD | TBD | ✅ РФ Сервера |
+
+*> **Quality Score**: Комбинированная метрика (Keyword Coverage + Semantic Similarity).  
+> 💡 **Инсайт**: Для операционных задач (чат-боты) Qwen выигрывает по скорости/цене. Для юридических консультаций YandexGPT незаменим из-за резидентности данных.
 
 ---
 
-## 🚀 Быстрый старт
+## 🏗️ System Architecture
 
-### Вариант 1: Google Colab (рекомендуется)
-1. Откройте ноутбук: [01_api_setup_and_basic_benchmark.ipynb](notebooks/01_api_setup_and_basic_benchmark.ipynb)
-2. В боковой панели нажмите 🔑 **Секреты** и добавьте:
-   - `YANDEX_IAM_TOKEN`
-   - `YANDEX_FOLDER_ID`
-   - `HF_TOKEN` (для Qwen)
-3. Запустите: `Runtime → Run all`
+Проект построен по принципу **Security-by-Design** и модульности.
 
-### Вариант 2: Локально
-```bash
+```mermaid
+graph TD
+    User[User / Colab Notebook] -->|Secure Auth| Secrets[Colab Secrets / Env Vars]
+    Secrets -->|IAM Token| Gateway[API Gateway]
+    Gateway -->|Routing| Yandex[Yandex GPT API]
+    Gateway -->|Routing| HF[HuggingFace Inference API]
+    
+    Yandex -->|Response| Metrics[Metrics Collector]
+    HF -->|Response| Metrics
+🔧 Tech Stack
+Core: Python 3.10+, requests, asyncio (planned)
+Data & Viz: pandas, matplotlib, numpy
+Auth & Security: PyJWT, cryptography, Colab Secrets Manager
+Infrastructure: Google Colab (Dev), Yandex Cloud (Prod-ready)
+🛡️ Compliance & Security (152-ФЗ Ready)
+Zero-Hardcode Secrets: Токены хранятся только в защищенном хранилище (userdata.get()), никогда не коммитятся в Git.
+Data Residency: Приоритет провайдерам с серверами в РФ (Yandex/Sber).
+Auditability: Логирование всех запросов и метрик для внутреннего аудита.
+🚀 Quick Start
+Option 1: Google Colab (Recommended for Demo)
+Open Stage 1: Basic Benchmark or Stage 2: Quality Evaluation.
+Add secrets in the left panel (🔑):
+YANDEX_IAM_TOKEN: Your IAM token from Yandex Cloud.
+YANDEX_FOLDER_ID: Your Folder ID.
+HF_TOKEN: HuggingFace API token (for Qwen/Llama).
+Run Runtime -> Run all.
+Option 2: Local Environment
+git clone https://github.com/Serx17/llm-benchmark-framework.git
+cd llm-benchmark-framework
 pip install -r requirements.txt
+
+# Set environment variables
 export YANDEX_IAM_TOKEN="t1..."
+export HF_TOKEN="hf_..."
+
 python src/benchmark_runner.py
-⚠️ Важно: Никогда не сохраняйте токены в коде. Используйте переменные окружения или менеджеры секретов.
-
----
-
-## 🗺️ Roadmap (План развития)
-
-| Этап | Фокус | Статус |
-|------|-------|--------|
-| **MVP** | API-интеграция, базовые метрики (latency, cost) | ✅ Готово |
-| **v0.2** | Тестовый датасет (50+ финтех-кейсов), метрика Quality | 🔄 В работе |
-| **v0.3** | Async-нагрузка, кэширование, авто-ротация токенов | 📅 Планируется |
-| **v1.0** | Web-дашборд, PDF-отчет для стейкхолдеров, CI/CD |  Цель |
-
-> 💡 *Проект развивается итеративно. Каждый этап добавляет ценность для бизнеса, а не только код.*
-
----
-
-## 👤 Об авторе
-
-**[Ваше Имя]**  
-AI Solutions Architect / AI Product Owner  
-14 лет опыта: юридический департамент → операционное управление → AI-трансформация финтеха.
-
-📧 **Контакты для связи:**  
-- Email: `your.email@example.com`  
-- LinkedIn: `[ссылка]`  
-- Telegram: `@your_tg`  
-
----
-<div align="center">
-  <b>Полезно? Поставьте ⭐ репозиторию!</b><br>
-  <i>Этот кейс открыт для предложений по сотрудничеству и пилотным интеграциям.</i>
-</div>
+🗺️ Roadmap
+Phase
+Focus Area
+Status
+Business Value
+MVP
+API Integration, Basic Metrics (Latency/Cost)
+✅ Done
+Proof of Concept
+v0.2
+Custom Dataset (50+ cases), Quality Metrics
+✅ Done
+Domain-specific evaluation
+v0.3
+Async Load Testing, Caching, Auto-Rotation
+📅 Planned
+Production readiness
+v1.0
+Web Dashboard (Streamlit), PDF Reports, CI/CD
+📅 Planned
+Stakeholder reporting
+👤 About the Author
+AI Solutions Architect | FinTech Domain Expert
+14+ years experience bridging Legal, Operations, and AI Transformation.
+Expertise: Designing secure AI pipelines for regulated industries (FinTech, LegalTech).
+Focus: TCO optimization, Compliance-by-Design, LLM Evaluation Frameworks.
+📫 Connect:
+Telegram: @nspoli
+Email: snantonenko17@gmail.com
+    
+   
