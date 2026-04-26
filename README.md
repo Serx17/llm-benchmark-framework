@@ -41,7 +41,6 @@
 
 Проект построен по принципу **Security-by-Design** и модульности.
 
-```mermaid
 graph TD
     User[User / Colab Notebook] -->|Secure Auth| Secrets[Colab Secrets / Env Vars]
     Secrets -->|IAM Token| Gateway[API Gateway]
